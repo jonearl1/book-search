@@ -4,11 +4,9 @@ import BookReponse from './book-response-type';
 import BookSearchRequestError from './book-search-request-error';
 import BookSearchServerError from './book-search-server-error';
 
-const url = 'http://api.book-seller-example.com/by-author';
-
-export default class BookSellerExampleApiClient implements BookSearchApiClient {
-  async getBooks(authorName: string, limit: number, format: string): Promise<BookReponse[]> {
-    const response = await this.getBooksResponse(authorName, limit, format);
+export default class BookSellerExampleApiClient extends BookSearchApiClient {
+  async getBooks(authorName: string, limit: number): Promise<BookReponse[]> {
+    const response = await this.getBooksResponse(authorName, limit, this.config.format);
     return response.data;
   }
 
@@ -24,7 +22,7 @@ export default class BookSellerExampleApiClient implements BookSearchApiClient {
     };
     let response: AxiosResponse;
     try {
-      response = await axios.get<BookReponse[]>(url, { params });
+      response = await axios.get<BookReponse[]>(this.config.bookSellerUrl, { params });
     } catch (error) {
       if (error instanceof AxiosError) {
         if (error.status === 404) {

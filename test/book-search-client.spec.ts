@@ -2,6 +2,7 @@ import axios, { AxiosError, AxiosHeaders } from 'axios';
 import BookSellerExampleApiClient from '../src/client/book-seller-example-api-client';
 import BookSearchRequestError from '../src/client/book-search-request-error';
 import BookSearchServerError from '../src/client/book-search-server-error';
+import BookSearchConfig from '../src/book-search-config';
 
 jest.mock('axios');
 const mockedAxios = axios as jest.Mocked<typeof axios>;
@@ -28,6 +29,7 @@ function getAxiosErrorWithStatus(status: number) {
   return error;
 }
 describe('users API client', () => {
+  const config = new BookSearchConfig();
   it('should get book response', async () => {
     const books = [
       {
@@ -52,8 +54,8 @@ describe('users API client', () => {
 
     mockedAxios.get.mockResolvedValueOnce(mockedResponse);
 
-    const bookSellerExampleApiClient = new BookSellerExampleApiClient();
-    const booksByShakespear = await bookSellerExampleApiClient.getBooks('Shakespear', 10, 'json');
+    const bookSellerExampleApiClient = new BookSellerExampleApiClient(config);
+    const booksByShakespear = await bookSellerExampleApiClient.getBooks('Shakespear', 10);
     const params = {
       params: {
         format: 'json',
@@ -74,9 +76,9 @@ describe('users API client', () => {
       throw error;
     });
 
-    const bookSellerExampleApiClient = new BookSellerExampleApiClient();
+    const bookSellerExampleApiClient = new BookSellerExampleApiClient(config);
     expect(async () => {
-      await bookSellerExampleApiClient.getBooks('Shakespear', 10, 'json');
+      await bookSellerExampleApiClient.getBooks('Shakespear', 10);
     }).rejects.toThrowError(BookSearchRequestError);
   });
 
@@ -86,9 +88,9 @@ describe('users API client', () => {
       throw error;
     });
 
-    const bookSellerExampleApiClient = new BookSellerExampleApiClient();
+    const bookSellerExampleApiClient = new BookSellerExampleApiClient(config);
     expect(async () => {
-      await bookSellerExampleApiClient.getBooks('Shakespear', 10, 'json');
+      await bookSellerExampleApiClient.getBooks('Shakespear', 10);
     }).rejects.toThrowError(BookSearchServerError);
   });
 });

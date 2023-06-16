@@ -1,31 +1,35 @@
 import { parseString } from 'xml2js';
+import * as dotenv from 'dotenv';
 import BookReponse from '../client/book-response-type';
 import BookSearchApiClient from '../client/book-search-api-client';
 import Book from './book-type';
+import BookSearchConfig from '../book-search-config';
+
+dotenv.config();
 
 export default class BookSearchService {
-  format: string;
-
   bookSearchApiClient: BookSearchApiClient;
 
-  constructor(format: string, apiClient: BookSearchApiClient) {
-    this.format = format;
+  config: BookSearchConfig;
+
+  constructor(apiClient: BookSearchApiClient, config: BookSearchConfig) {
+    this.config = config;
     this.bookSearchApiClient = apiClient;
   }
 
   async getBooksByAuthor(authorName: string, limit: number): Promise<Book[]> {
-    const bookResponse = await this.bookSearchApiClient.getBooks(authorName, limit, this.format);
+    const bookResponse = await this.bookSearchApiClient.getBooks(authorName, limit);
 
     let result: Book[] = [];
-    if (this.format === 'json') {
+    if (this.config.format === 'json') {
       result = this.parseJson(bookResponse);
-    } else if (this.format === 'xml') {
+    } else if (this.config.format === 'xml') {
       result = this.parseXml(bookResponse);
     }
     return result;
   }
 
-  private parseXml(bookResponse: BookReponse[]): Book[] {
+  private parseXml(bookResponse: string): Book[] {
     let result: Book[] = [];
     parseString(bookResponse, (_err, xml) => {
       result = xml.books.book.map(
